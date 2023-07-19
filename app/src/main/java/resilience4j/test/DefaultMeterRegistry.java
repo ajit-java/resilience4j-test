@@ -8,13 +8,13 @@ public class DefaultMeterRegistry extends PrometheusMeterRegistry {
     public DefaultMeterRegistry() {
         super(PrometheusConfig.DEFAULT);
 
-        config().commonTags("app", "realtime-reporting");
-        config().commonTags("application", "realtime-reporting");
+        config().commonTags("app", "reporting-app");
+        config().commonTags("application", "reporting-app");
 
-        new JvmGcMetrics().bindTo(this);
-        new JvmThreadMetrics().bindTo(this);
-        new JvmMemoryMetrics().bindTo(this);
-        new ClassLoaderMetrics().bindTo(this);
+        // new JvmGcMetrics().bindTo(this);
+        // new JvmThreadMetrics().bindTo(this);
+        // new JvmMemoryMetrics().bindTo(this);
+         new ClassLoaderMetrics().bindTo(this);
 
     }
 

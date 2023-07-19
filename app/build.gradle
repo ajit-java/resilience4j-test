@@ -19,7 +19,8 @@ dependencies {
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.11.1'
 	implementation group: 'io.github.resilience4j', name: 'resilience4j-all', version: '2.1.0'
 	implementation group: 'io.github.resilience4j', name: 'resilience4j-micrometer', version: '2.1.0'
-    
+    implementation group: 'io.vavr', name: 'vavr', version: '0.10.4'
+
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13.2'
 

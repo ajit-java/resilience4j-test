@@ -3,12 +3,65 @@
  */
 package resilience4j.test;
 
+import java.util.random.RandomGenerator;
+
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
+import io.vavr.control.Try;
+import java.util.random.RandomGenerator;
+
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        //Create metrics regitry
+        DefaultMeterRegistry registry = new DefaultMeterRegistry();
+
+        //create a circuit breaker instance
+        CircuitBreaker c1 = CircuitBreakers.getDefaultCircuitBreaker(registry, "ServiceC1");
+        
+        //call(simulate) backend service finction
+        for (int i = 0; i <= 2000; i++) {
+            callBackendWithCircuitBreaker(registry, c1);
+        }
+
+        //print metrics
+        System.out.println(registry.scrape());
     }
+
+    public static void callBackendWithCircuitBreaker(DefaultMeterRegistry registry, CircuitBreaker c1) {
+        // call a backend function with success
+        var supplierFunction = CircuitBreaker.decorateSupplier(c1, () -> successBackendService());
+        var result = Try.ofSupplier(supplierFunction).recover(throwable -> "Hello from Recovery").get();
+
+        // call a backend function with failure
+        supplierFunction = CircuitBreaker.decorateSupplier(c1, () -> failBackendService());
+        result = Try.ofSupplier(supplierFunction).recover(throwable -> "Hello from Recovery").get();
+
+        // call a backend function with failure
+        supplierFunction = CircuitBreaker.decorateSupplier(c1, () -> failBackendService());
+        result = Try.ofSupplier(supplierFunction).recover(throwable -> "Hello from Recovery").get();
+    }
+
+    public static String successBackendService() {
+        return "Success:" + randomSleep(2);
+    }
+
+    public static String failBackendService() {
+        return "Failure:" + randomSleep(0);
+    }
+
+    private static String randomSleep(int i) {
+        int t = 5 / i;
+
+        Long milliSeconds = (long) RandomGenerator.getDefault().nextInt(1, 10);
+        try {
+            Thread.sleep(milliSeconds);
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Sleeping for -:" + milliSeconds);
+
+        return "slept for -:" + milliSeconds;
+    }
+
 }
